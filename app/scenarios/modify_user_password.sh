@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# Simulate modification of a local user's password
-# Replace "user_to_modify" with the actual username you want to target
-echo "ubuntu:new_password" | chpasswd
+# Create a new user for testing (replace 'testuser' with your preferred username)
+useradd -m testuser
 
-# Sleep for a while to give the security agent time to detect the password change
-sleep 30
+# Change the password for the newly created user
+echo "testuser:newpassword" | chpasswd
+
+# Validation: Log successful scenario execution
+echo "Scenario 19 (Modify User Password) executed successfully at $(date)" >> /var/log/scenario.log
+
