@@ -22,7 +22,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           docker buildx create --use
-          docker buildx build --platform linux/amd64 -t $DOCKER_USERNAME/nastycontainer:v3 .
+          docker buildx build --platform linux/amd64 -t bajacloud/nastycontainer:latest .
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker push $DOCKER_USERNAME/nastycontainer:v3
+          docker push bajacloud/nastycontainer:latest
 
