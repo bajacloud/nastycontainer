@@ -16,6 +16,9 @@ RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/s
 # Add scenario scripts
 COPY app /app
 
+# Make scenario scripts executable
+RUN chmod +x /app/scenarios/*.sh
+
 # Create a log directory
 RUN mkdir -p /var/log
 
