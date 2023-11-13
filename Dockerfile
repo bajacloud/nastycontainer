@@ -6,17 +6,15 @@ RUN apt-get update && apt-get install -y \
         curl \
         wget \
         gcc \
-        tcpdump && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get clean
-
+        tcpdump 
+   
 # Install kubectl
 RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/
 
 # Add scenario scripts
-COPY scenarios /scenarios
+COPY app /app
 
 # Create a log directory
 RUN mkdir -p /var/log
