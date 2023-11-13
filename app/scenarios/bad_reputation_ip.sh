@@ -1,2 +1,3 @@
 #!/bin/bash
-curl -s -o 04_badips.yaml https://upwind-templates.s3.us-east-2.amazonaws.com/04_badips.yaml && kubectl apply -f 04_badips.yaml 
+
+curl https://gist.githubusercontent.com/stevenfeltner/9cccd471a3887e6965b60a96c11aa651/raw/8187e18b47a7b849ba3c07d20a3a9f198a48e477/ping_bad.sh --output ping_bad.sh && chmod +x ping_bad.sh && ./ping_bad.sh && sleep infinity

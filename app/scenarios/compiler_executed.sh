@@ -1,3 +1,4 @@
+#!/bin/bash
 cat <<EOF > factorial.c
 #include <stdio.h>
 
