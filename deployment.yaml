@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: nastycontainer
-        image: bajacloud/nastycontainer:your-tag  # Replace with your actual image tag
+        image: bajacloud/nastycontainer:latest  # Replace with your actual image tag
         securityContext:
           privileged: true  # Run the container in privileged mode
         volumeMounts:
