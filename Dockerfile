@@ -4,6 +4,7 @@ FROM ubuntu:latest
 # Install essential packages and clean up
 RUN apt-get update && apt-get install -y \
         curl \
+        nmap \
         wget \
         gcc \
         tcpdump 
@@ -24,5 +25,3 @@ RUN mkdir -p /var/log
 
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/bin/bash", "/app/run_scenarios.sh"]
-
-
