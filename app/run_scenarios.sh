@@ -1,25 +1,43 @@
 #!/bin/bash
 
-# Start network capture in the background
-/app/scenarios/start_network_capture.sh &
+# Enable error handling
+set -e
 
-# Run the remaining scenarios sequentially
+# Scenario 1: 
+/app/scenarios/bad_reputation_ip.sh || true
 
-# Scenario 6: Network Anomalies
-/app/scenarios/simulate_port_scan.sh &
+# Scenario 2: Compiler Executed In Container
+/app/scenarios/compiler_executed.sh || true
 
-# Scenario 16: Suspicious Process Activity
-/app/scenarios/simulate_suspicious_process.sh &
+# Scenario 3: 
+/app/scenarios/container_management_utility.sh || true
 
-# Scenario 19: Modify User Password (Ubuntu)
-/app/scenarios/modify_user_password.sh ubuntu &
+# Scenario 4: Modify User Password (Ubuntu)
+/app/scenarios/modify_user_password.sh || true
 
-# Scenario 22: Clear Shell Command History
-/app/scenarios/simulate_history_cleanup.sh &
+# Scenario 5:
+/app/scenarios/run_cryptominer.sh || true
 
-# Scenario 23: Delete Shell Command History File
-/app/scenarios/simulate_history_file_deletion.sh &
+# Scenario 6:
+/app/scenarios/run_malware.sh || true
+
+# Scenario 7: Delete Shell Command History File
+/app/scenarios/simulate_history_cleanup.sh || true
+
+# Scenario 8: Simulate History File Deletion
+/app/scenarios/simulate_history_file_deletion.sh || true
+
+# Scenario 9: Simulate Port Scan
+/app/scenarios/simulate_port_scan.sh || true
+
+# Scenario 10: Simulate Suspicious Process Activity
+/app/scenarios/simulate_suspicious_process.sh || true
+
+# Scenario 11: Start Network Capture
+/app/scenarios/start_network_capture.sh || true
+
+# Disable error handling
+set +e
 
 # Sleep for a while to allow scenarios to run
 sleep 3600  # Adjust the duration as needed
-

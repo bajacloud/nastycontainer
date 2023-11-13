@@ -1,4 +1,4 @@
 #!/bin/bash
 
-# Start tcpdump to capture network traffic in the background
-tcpdump -i any -w /app/network_capture.pcap
+# Start tcpdump to capture 10 packets and then stop.
+tcpdump -i any -c 10

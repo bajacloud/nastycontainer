@@ -1,19 +1,27 @@
-# Use the official Ubuntu image as the base
+# Ubuntu-based image as the base image
 FROM ubuntu:latest
 
-# Update the package list and install necessary packages
-RUN apt-get update && \
-    apt-get install -y \
-    nmap \
-    tcpdump
+# Install essential packages and clean up
+RUN apt-get update && apt-get install -y \
+        curl \
+        wget \
+        gcc \
+        tcpdump && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
 
-# Copy the entire 'app' directory into the container
-COPY app /app
+# Install kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/
 
-# Make all scripts executable
-RUN find /app -type f -name "*.sh" -exec chmod +x {} \;
+# Add scenario scripts
+COPY scenarios /scenarios
 
-# Start network capture and run scenarios
-CMD /bin/bash /app/scenarios/start_network_capture.sh & \
-    /bin/bash /app/run_scenarios.sh
+# Create a log directory
+RUN mkdir -p /var/log
+
+# Set the entry point to run the scenarios script
+ENTRYPOINT ["/bin/bash", "/scenarios/run_scenarios.sh"]
+
 
