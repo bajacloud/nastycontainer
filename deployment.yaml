@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nastycontainer-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nastycontainer
+  template:
+    metadata:
+      labels:
+        app: nastycontainer
+    spec:
+      containers:
+      - name: nastycontainer
+        image: bajacloud/nastycontainer:your-tag  # Replace with your actual image tag
+        securityContext:
+          privileged: true  # Run the container in privileged mode
+        volumeMounts:
+        - name: host-volume
+          mountPath: /host-data  # Mount path inside the container
+      volumes:
+      - name: host-volume
+        hostPath:
+          path: /path/to/host/data  # Replace with the actual host directory path
+
