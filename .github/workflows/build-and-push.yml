@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main  # Adjust the branch name as needed
+      - main  
 
 jobs:
   build:
@@ -16,13 +16,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      - name: Log in to DockerHub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
       - name: Build and push Docker image
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           docker buildx create --use
-          docker buildx build --platform linux/amd64 -t bajacloud/nastycontainer:latest -f Dockerfile .
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker push bajacloud/nastycontainer:latest
-
+          docker buildx build --platform linux/amd64 -t bajacloud/nastycontainer:latest -f Dockerfile . --push
