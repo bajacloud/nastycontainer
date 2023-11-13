@@ -20,6 +20,6 @@ COPY app /app
 RUN mkdir -p /var/log
 
 # Set the entry point to run the scenarios script
-ENTRYPOINT ["/bin/bash", "/app/scenarios/run_scenarios.sh"]
+ENTRYPOINT ["/bin/bash", "/app/run_scenarios.sh"]
 
 
