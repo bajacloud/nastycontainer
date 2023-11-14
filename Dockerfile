@@ -24,4 +24,4 @@ RUN chmod +x /app/scenarios/*.sh
 RUN mkdir -p /var/log
 
 # Set the entry point to run the scenarios script
-ENTRYPOINT ["/bin/bash", "/app/run_scenarios.sh"]
+ENTRYPOINT ["/bin/bash"]
