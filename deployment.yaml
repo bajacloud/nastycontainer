@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nastycontainer-deployment
+  name: nasty-deployment
 spec:
   replicas: 1
   selector:
@@ -14,14 +14,14 @@ spec:
     spec:
       containers:
       - name: nastycontainer
-        image: bajacloud/nastycontainer:latest  # Replace with your actual image tag
+        image: bajacloud/nastycontainer:latest  
         securityContext:
-          privileged: true  # Run the container in privileged mode
+          privileged: true  
         volumeMounts:
         - name: host-volume
-          mountPath: /host-data  # Mount path inside the container
+          mountPath: /host-data  
       volumes:
       - name: host-volume
         hostPath:
-          path: /path/to/host/data  # Replace with the actual host directory path
+          path: /path/to/host/data  
 
