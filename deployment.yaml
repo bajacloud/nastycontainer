@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
       - name: nastycontainer
-        image: bajacloud/nastycontainer:latest  
+        image: bajacloud/nastycontainer:int
+        command: ["sleep", "infinity"]
         securityContext:
           privileged: true  
         volumeMounts:

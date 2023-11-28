@@ -24,7 +24,10 @@ timeout 10s /app/scenarios/start_network_capture.sh
 # Scenario 1: 
 timeout 10s /app/scenarios/bad_reputation_ip.sh
 
-# Sleep for a while to allow scenarios to run
+# Scenario
+/app/scenarios/reverse_shell.sh
+
+# Sleep for a while to allow scenarios to 
 sleep 3600  # Adjust the duration as needed
 
 
