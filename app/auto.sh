@@ -41,7 +41,7 @@ timeout=30
 while true; do
   sleep $timeout
   testtorun=$(($RANDOM%$length))
-  ./scenarios/${flist[$testtorun]}
+  ${flist[$testtorun]}
   timeout=$(($(($RANDOM%$difftime))+mintime))
   echo "Sleeping $timeout seconds"
 done
