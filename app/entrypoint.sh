@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # ./entrypoint s
 if [ "$1" = "s" ]; then
     # Enter sleep mode

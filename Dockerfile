@@ -31,5 +31,7 @@ RUN find /app/ -type f -exec chmod +x {} \;
 # Create a log directory
 RUN mkdir -p /var/log
 
+RUN chmod +x /app/entrypoint.sh
+
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/app/entrypoint.sh"]
