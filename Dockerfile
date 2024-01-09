@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
         telnet \
         file \
         dnsutils \
-        bind-utils \
+        dnsutils \
         ruby \
         hostname
 
