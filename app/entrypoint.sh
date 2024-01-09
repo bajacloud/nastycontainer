@@ -8,9 +8,9 @@ elif [ -t 0 ] ; then
     # Enter menu mode
     echo "(starting interactive shell)"
     # Start menu
-    ./run_scenarios.sh
+    /app/run_scenarios.sh
 else
     echo "(starting non-interactive shell)"
     # Start automatic run
-    ./auto.sh
+    /app/auto.sh
 fi
