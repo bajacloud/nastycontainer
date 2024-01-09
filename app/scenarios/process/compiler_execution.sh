@@ -1,4 +1,9 @@
 #!/bin/bash
+
+# Type: Process
+# Policy: Compiler execution
+# Execution:Process/CompilerExecutedInContainer
+
 cat <<EOF > factorial.c
 #include <stdio.h>
 
