@@ -36,11 +36,14 @@ do
 done
 
 #Initial test timeout
-timeout=30
+timeout=10
 
 while true; do
   sleep $timeout
   testtorun=$(($RANDOM%$length))
+  timeout_duration=30
+  command_to_run=${flist[$testtorun]}
+  timeout $timeout_duration $command_to_run
   ${flist[$testtorun]}
   timeout=$(($(($RANDOM%$difftime))+mintime))
   echo "Sleeping $timeout seconds"
