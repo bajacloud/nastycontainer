@@ -23,8 +23,8 @@ done
 length=${#flist[@]}
 
 # Set interval randomization limits
-mintime=100
-maxtime=1800
+mintime=30
+maxtime=120
 difftime=$((maxtime-mintime+1))
 
 
@@ -32,7 +32,7 @@ difftime=$((maxtime-mintime+1))
 for i in "${flist[@]}"
 do
    tname=`echo $i|cut -d'.' -f1| tr '_' ' '`
-   echo "Running $tname"
+   echo "Loading... $tname"
 done
 
 #Initial test timeout
@@ -43,8 +43,8 @@ while true; do
   testtorun=$(($RANDOM%$length))
   timeout_duration=30
   command_to_run=${flist[$testtorun]}
+  echo "Running $command_to_run"
   timeout $timeout_duration $command_to_run
-  ${flist[$testtorun]}
   timeout=$(($(($RANDOM%$difftime))+mintime))
   echo "Sleeping $timeout seconds"
 done

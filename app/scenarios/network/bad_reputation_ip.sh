@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Type: Network
-# Policy: Paste Services DNS
-# A container is performing DNS lookups for paste service
+# Policy: Bad reputation IP / Domains
+# A container is performing DNS lookups for bad reputation domains
 
 # List of IP addresses to ping
 IP_LIST=("170.64.210.160"
