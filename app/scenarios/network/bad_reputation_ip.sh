@@ -6,7 +6,7 @@
 
 # Fetch the most recent reported bad IPs. Take the top 10.
 wget https://raw.githubusercontent.com/stamparm/ipsum/master/ipsum.txt
-IP_LIST=($(awk '!/^#/ && NR>4 && NR<=14 {print "\"" $1 "\""}' ipsum.txt))
+IP_LIST=($(awk '!/^#/ && NR>4 && NR<=14 {print $1}' ipsum.txt))
 
 # Number of times to repeat the list
 NUM_REPEATS=1
@@ -24,7 +24,4 @@ for ((repeat=1; repeat <= NUM_REPEATS; repeat++)); do
     fi
   done
   
-  # Wait for 120 seconds before the next repeat
-  echo "Waiting for 120 seconds..."
-  sleep 120
 done
