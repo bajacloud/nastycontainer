@@ -14,7 +14,8 @@ RUN apt-get update && apt-get install -y \
         dnsutils \
         dnsutils \
         ruby \
-        hostname
+        hostname \
+        iputils-ping
 
    
 # Install kubectl
