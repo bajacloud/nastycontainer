@@ -9,9 +9,9 @@ show_menu(){
     version="0.1"
 
     mitems=(
+           "Bad Reputation DNS Lookup"
            "Bad Reputation IPs"
            "Paste Services DNS"
-           "Bad Reputation DNS Lookup"
            "Attempt to Find AWS Credentials"
            "Compliler Execution"
            "Container Management Utility (kubectl)"
