@@ -3,21 +3,50 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main  
+      - main
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
+      # Check out the code
       - name: Checkout code
-        uses: actions/checkout@v2
-  
-      - name: Log in to DockerHub
-        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        uses: actions/checkout@v3
 
-      - name: Build Docker image
-        run: docker build -t bajacloud/nastycontainer:int -f Dockerfile .
-      
+      # Set up Docker Buildx for multi-platform builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Log in to DockerHub using a safer authentication method
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Determine version tag (semantic versioning + commit SHA)
+      - name: Determine Docker Image Version
+        id: vars
+        run: echo "VERSION=1.0.${{ github.run_number }}" >> $GITHUB_ENV
+
+      # Build the Docker image with multiple tags
+      - name: Build and tag Docker image
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag bajacloud/nastycontainer:${{ env.VERSION }} \
+            --tag bajacloud/nastycontainer:latest \
+            --file Dockerfile \
+            .
+
+      # Push the Docker image with both versioned and latest tags
       - name: Push Docker image
-        run: docker push bajacloud/nastycontainer:int
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --tag bajacloud/nastycontainer:${{ env.VERSION }} \
+            --tag bajacloud/nastycontainer:latest \
+            --push \
+            --file Dockerfile \
+            .
