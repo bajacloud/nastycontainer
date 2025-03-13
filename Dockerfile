@@ -15,11 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Install kubectl (Final Fix)
+# Install kubectl (Hardcoded Version)
 RUN set -e && \
-    KUBECTL_VERSION=$(wget -qO- https://dl.k8s.io/release/stable.txt) && \
-    echo "Installing kubectl version: $KUBECTL_VERSION (amd64)" && \
-    wget --no-check-certificate --retry-connrefused --waitretry=5 --timeout=30 --tries=5 -O kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    echo "Installing kubectl v1.32.3 (amd64)" && \
+    wget --no-check-certificate --retry-connrefused --waitretry=5 --timeout=30 --tries=5 -O kubectl "https://dl.k8s.io/release/v1.32.3/bin/linux/amd64/kubectl" && \
     ls -lh kubectl && \
     [ -s kubectl ] || (echo "ERROR: Kubectl download failed!" && exit 1) && \
     chmod +x kubectl && \
