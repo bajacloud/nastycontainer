@@ -4,8 +4,8 @@ FROM ubuntu:22.04 AS builder
 # Install necessary tools and clean up
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
-        nmap \
         wget \
+        nmap \
         gcc \
         tcpdump \
         netcat \
@@ -15,15 +15,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Install kubectl (Now with retry mechanism)
+# Install kubectl (Fixed for GitHub Actions)
 RUN set -e && \
-    KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt) && \
-    echo "Installing kubectl version: $KUBECTL_VERSION" && \
-    for i in {1..5}; do curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && [ -s kubectl ] && break || sleep 15; done && \
-    ls -lh kubectl && \
-    [ -s kubectl ] || (echo "ERROR: Kubectl download failed!" && exit 1) && \
+    KUBECTL_VERSION=$(wget -qO- https://dl.k8s.io/release/stable.txt) && \
+    echo "Installing kubectl version: $KUBECTL_VERSION (amd64)" && \
+    wget --retry-connrefused --waitretry=5 --timeout=30 --tries=5 -O kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
-    mv kubectl /usr/local/bin/kubectl
+    mv kubectl /usr/local/bin/kubectl && \
+    kubectl version --client=true --output=yaml
 
 # Copy application scripts
 COPY app /app
@@ -37,8 +36,8 @@ FROM ubuntu:22.04
 # Install all required runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
-        nmap \
         wget \
+        nmap \
         gcc \
         tcpdump \
         netcat \
