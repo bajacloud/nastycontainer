@@ -1,5 +1,4 @@
-here it is:
-    # Ubuntu-based image as the base image
+   # Ubuntu-based image as the base image
     FROM ubuntu:latest
     
     # Install essential packages and clean up
