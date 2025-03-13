@@ -1,38 +1,46 @@
-# Ubuntu-based image as the base image
-FROM ubuntu:latest
+# Stage 1: Builder - Installs tools, builds dependencies
+FROM ubuntu:minimal AS builder
 
-# Install essential packages and clean up
-RUN apt-get update && apt-get install -y \
+# Install necessary tools and clean up
+RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         nmap \
         wget \
         gcc \
         tcpdump \
-        ncat \ 
+        netcat \
         telnet \
         file \
         dnsutils \
-        dnsutils \
-        ruby \
-        hostname \
-        iputils-ping
+        iputils-ping \
+    && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-   
-# Install kubectl
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+# Install kubectl (Verifying with SHA256 checksum)
+ARG KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
+    echo "$(cat kubectl.sha256) kubectl" | sha256sum --check && \
     chmod +x kubectl && \
-    mv kubectl /usr/local/bin/
+    mv kubectl /usr/local/bin/ && \
+    rm -f kubectl.sha256
 
-# Add scenario scripts
+# Copy application scripts
 COPY app /app
 
-# Make scenario scripts executable
-RUN find /app/ -type f -exec chmod +x {} \;
+# Ensure scripts are executable
+RUN chmod -R +x /app
 
-# Create a log directory
-RUN mkdir -p /var/log
+# Stage 2: Minimal Final Image - Keeps only the necessary files
+FROM ubuntu:minimal
 
-RUN chmod +x /app/entrypoint.sh
+# Copy necessary files from the builder stage
+COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/kubectl
+COPY --from=builder /app /app
+
+# Ensure scripts remain executable
+RUN chmod -R +x /app && \
+    mkdir -p /var/log
 
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/app/entrypoint.sh"]
+
