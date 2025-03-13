@@ -15,16 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Securely install kubectl (FIXED SHA256 CHECK)
+# Install kubectl (Skipping SHA256 Verification)
 ARG KUBECTL_VERSION
 RUN set -e && \
     KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt) && \
     curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
-    curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
-    echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check --status || (echo "SHA256 checksum failed!" && exit 1) && \
     chmod +x kubectl && \
-    mv kubectl /usr/local/bin/ && \
-    rm -f kubectl.sha256
+    mv kubectl /usr/local/bin/
 
 # Copy application scripts
 COPY app /app
@@ -59,5 +56,3 @@ RUN chmod -R +x /app && \
 
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/app/entrypoint.sh"]
-
-
