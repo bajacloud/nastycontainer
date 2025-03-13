@@ -15,14 +15,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Install kubectl (Fixed for GitHub Actions)
+# Install kubectl (Final Fix)
 RUN set -e && \
     KUBECTL_VERSION=$(wget -qO- https://dl.k8s.io/release/stable.txt) && \
     echo "Installing kubectl version: $KUBECTL_VERSION (amd64)" && \
-    wget --retry-connrefused --waitretry=5 --timeout=30 --tries=5 -O kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    wget --no-check-certificate --retry-connrefused --waitretry=5 --timeout=30 --tries=5 -O kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    ls -lh kubectl && \
+    [ -s kubectl ] || (echo "ERROR: Kubectl download failed!" && exit 1) && \
     chmod +x kubectl && \
     mv kubectl /usr/local/bin/kubectl && \
-    kubectl version --client=true --output=yaml
+    /usr/local/bin/kubectl version --client=true --output=yaml
 
 # Copy application scripts
 COPY app /app
