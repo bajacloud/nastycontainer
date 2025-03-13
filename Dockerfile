@@ -15,10 +15,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Install kubectl (Restored Original Working Method)
-RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && \
+# Install kubectl (Proper Fix)
+RUN set -e && \
+    KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt) && \
+    echo "Installing kubectl version: $KUBECTL_VERSION" && \
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
     chmod +x kubectl && \
-    mv kubectl /usr/local/bin/
+    mv kubectl /usr/local/bin/kubectl
 
 # Copy application scripts
 COPY app /app
@@ -53,3 +56,4 @@ RUN chmod -R +x /app && \
 
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/app/entrypoint.sh"]
+
