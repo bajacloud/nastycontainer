@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'K8s-manifests/**'
   workflow_dispatch:  # Allows manual triggering from the GitHub Actions UI
 
 jobs:
