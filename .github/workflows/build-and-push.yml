@@ -6,6 +6,8 @@ on:
       - main
     paths-ignore:
       - 'K8s-manifests/**'
+      - 'README.md'
+      - '.github/**'
   workflow_dispatch:  # Allows manual triggering from the GitHub Actions UI
 
 jobs:
