@@ -15,11 +15,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Install kubectl (Now verifies file download before proceeding)
+# Install kubectl (Now with retry mechanism)
 RUN set -e && \
     KUBECTL_VERSION=$(curl -s https://dl.k8s.io/release/stable.txt) && \
     echo "Installing kubectl version: $KUBECTL_VERSION" && \
-    curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
+    for i in {1..5}; do curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && [ -s kubectl ] && break || sleep 15; done && \
     ls -lh kubectl && \
     [ -s kubectl ] || (echo "ERROR: Kubectl download failed!" && exit 1) && \
     chmod +x kubectl && \
@@ -58,4 +58,3 @@ RUN chmod -R +x /app && \
 
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/app/entrypoint.sh"]
-
