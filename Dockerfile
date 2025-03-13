@@ -1,5 +1,5 @@
-# Stage 1: Builder - Installs tools, builds dependencies
-FROM ubuntu:minimal AS builder
+# Stage 1: Builder - Installs tools and dependencies
+FROM ubuntu:22.04 AS builder
 
 # Install necessary tools and clean up
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iputils-ping \
     && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
-# Install kubectl (Verifying with SHA256 checksum)
+# Securely install kubectl (Verifying with SHA256 checksum)
 ARG KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
 RUN curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
     curl -LO "https://dl.k8s.io/${KUBECTL_VERSION}/bin/linux/amd64/kubectl.sha256" && \
@@ -30,8 +30,22 @@ COPY app /app
 # Ensure scripts are executable
 RUN chmod -R +x /app
 
-# Stage 2: Minimal Final Image - Keeps only the necessary files
-FROM ubuntu:minimal
+# Stage 2: Final Image - Includes all necessary tools
+FROM ubuntu:22.04
+
+# Install all required runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        nmap \
+        wget \
+        gcc \
+        tcpdump \
+        netcat \
+        telnet \
+        file \
+        dnsutils \
+        iputils-ping \
+    && rm -rf /var/lib/apt/lists/*  # Reduce image size by removing cached APT files
 
 # Copy necessary files from the builder stage
 COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/kubectl
@@ -43,4 +57,3 @@ RUN chmod -R +x /app && \
 
 # Set the entry point to run the scenarios script
 ENTRYPOINT ["/app/entrypoint.sh"]
-
