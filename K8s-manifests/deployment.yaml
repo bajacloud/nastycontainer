@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nasty-deployment
-  namespace: nasty
 spec:
   replicas: 1
   selector:
@@ -15,7 +14,7 @@ spec:
     spec:
       containers:
       - name: nastycontainer
-        image: bajacloud/nastycontainer:int
+        image: bajacloud/nastycontainer:latest
         command: ["sleep", "infinity"]
         securityContext:
           privileged: true
